@@ -57,6 +57,7 @@ Planned improvements:
 - Unit testing
 - Pagination and filtering
 - Access policies
+- Implement more validation
 
 > Note:
 > Recipe management service was implemented temporarily for a specific purpose and will be removed in future versions.
