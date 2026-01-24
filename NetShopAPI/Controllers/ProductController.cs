@@ -40,7 +40,7 @@ namespace NetShopAPI.Controllers
         }
 
 
-        [HttpGet("by-id/{id:int}")]
+        [HttpGet("by-id/{id:guid}")]
         public async Task<IActionResult> GetById (Guid id)
         {
             var result = await _productService.GetPositionProductByIdAsync(id);
