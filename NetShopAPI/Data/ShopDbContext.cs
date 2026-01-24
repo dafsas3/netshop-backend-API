@@ -4,7 +4,6 @@ using NetShopAPI.Models.CartModel;
 using NetShopAPI.Models.GeneralWarehouseModel.PositionItem;
 using NetShopAPI.Models.OrderModel;
 using NetShopAPI.Models.SupplyModel;
-using NetShopAPI.Models.TestInfo;
 
 namespace NetShopAPI.Data
 {
@@ -19,8 +18,6 @@ namespace NetShopAPI.Data
         public DbSet<CartItem> CartItems => Set<CartItem>();
         public DbSet<Order> Orders => Set<Order>();
 
-        public DbSet<Recipe> Recipes => Set<Recipe>();
-        public DbSet<Ingredient> Ingredients => Set<Ingredient>();
         public DbSet<Position> Positions => Set<Position>();
         public DbSet<SupplyLog> SupplyLogs => Set<SupplyLog>();
 

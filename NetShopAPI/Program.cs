@@ -14,7 +14,6 @@ using NetShopAPI.Services.CartServices;
 using NetShopAPI.Services.OrderServices;
 using NetShopAPI.Middlewares;
 using NetShopAPI.Services.SupplyServices;
-using NetShopAPI.Services.RecipeServices;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using NetShopAPI.DTOs.Validators.AuthValidator;
@@ -69,7 +68,6 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<IRecipeService, RecipeService>();
 builder.Services.AddScoped<ISupplyService, SupplyService>();
 
 var jwt = builder.Configuration.GetSection("Jwt");
