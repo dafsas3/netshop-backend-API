@@ -1,9 +1,29 @@
+# ===== Build results =====
 bin/
 obj/
+
+# ===== Visual Studio =====
 .vs/
 *.user
 *.suo
 
+# ===== Rider / VSCode =====
+.idea/
+.vscode/
 
-#secrets / local configs
+# ===== OS files =====
+Thumbs.db
+.DS_Store
+
+# ===== Logs =====
+*.log
+
+# ===== Secrets / Local config =====
 appsettings.Development.json
+appsettings.Local.json
+
+# ===== EF Core =====
+Migrations/*.Designer.cs
+
+# ===== Publish =====
+publish/
