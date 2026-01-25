@@ -1,8 +1,10 @@
 # NetShopAPI
 
-Backend REST API for an online shop built with ASP.NET Core.
+Backend REST API for an online shop built with ASP.NET Core (.NET 8).
 
-> Project is under active development (Work in Progress)
+> 🚧 Project is under active development (Work in Progress)
+
+---
 
 ## Tech Stack
 - ASP.NET Core (.NET 8)
@@ -13,12 +15,16 @@ Backend REST API for an online shop built with ASP.NET Core.
 - REST API
 - Git
 
+---
+
 ## Architecture
 - Layered architecture (Controllers / Services / Data / DTO)
 - Thin controllers
 - Business logic isolated in services
-- Result<T> pattern for consistent API responses
+- Result pattern for consistent API responses
 - Centralized exception handling middleware
+
+---
 
 ## Implemented Features
 - User registration & authentication (JWT)
@@ -27,9 +33,11 @@ Backend REST API for an online shop built with ASP.NET Core.
 - Shopping cart functionality
 - Order creation
 - Order status workflow with validation rules
-- Data validation (FluentValidation)
+- Input data validation (FluentValidation)
 - Proper HTTP status codes
 - Supply management module (partially implemented)
+
+---
 
 ## Order Workflow
 Order statuses are managed using enums and centralized workflow rules:
@@ -42,25 +50,20 @@ Order statuses are managed using enums and centralized workflow rules:
 
 Invalid status transitions are blocked at service level.
 
+---
+
 ## Database
 - MySQL
 - Code First migrations (EF Core)
 
+---
+
 ## API Documentation
 - Swagger (OpenAPI)
 
-## Project Status
-The project is not fully completed yet.
-Planned improvements:
-- Transactions for order creation
-- Product stock validation
-- Unit testing
-- Pagination and filtering
-- Access policies
-- Implement more validation
+---
 
-> Note:
-> Recipe management service was implemented temporarily for a specific purpose and will be removed in future versions.
-
-## Author
-Backend Developer (Junior / Junior+)
+## How to Run Locally
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/dafsas3/netshop-backend-API.git
