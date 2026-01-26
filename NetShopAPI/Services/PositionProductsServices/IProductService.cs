@@ -10,7 +10,7 @@ namespace NetShopAPI.Services.PositionProductsServices
     {
         Task<List<BulkPositionResponse>> CreatePositionProductAsync(List<ProductRequest> req);
         Task<Result<List<PositionResponse>>> GetPositionProductsByCategoryAsync(int categoryId);
-        Task<Result<PositionResponse>> GetPositionProductByIdAsync(Guid id);
+        Task<Result<PositionResponse>> GetPositionProductByIdAsync(int id);
         Task<Result<PositionAddStockResponse>> AddToStock(int productId, int quantity);
     }
 }
