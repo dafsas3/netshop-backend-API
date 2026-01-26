@@ -23,7 +23,7 @@ namespace NetShopAPI.Services.SupplyServices
             var existingPosition = await _db.Positions.Where(p => p.Name == req.Name).FirstOrDefaultAsync();
 
             SupplyLog supplyLog;
-            Guid positionId;
+            int positionId;
 
             if (existingPosition is not null)
             {
@@ -79,7 +79,7 @@ namespace NetShopAPI.Services.SupplyServices
         }
 
 
-        private SupplyResponse FillInResponse(SupplyResponse response, SupplyLog log, Guid positionId)
+        private SupplyResponse FillInResponse(SupplyResponse response, SupplyLog log, int positionId)
         {
             response.Price = log.PriceAtSupply;
             response.Totalprice += (log.PriceAtSupply * (decimal)log.AmountReceived);
