@@ -2,7 +2,7 @@
 {
     public class SupplyResponse
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public required string Name { get; set; }
         public int Amount { get; set; }
         public decimal Price { get; set; }
