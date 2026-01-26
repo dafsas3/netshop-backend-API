@@ -52,9 +52,10 @@ namespace NetShopAPI.Services.PositionProductsServices
         {
             var productNames = req.Select(p => p.Name).Distinct().ToList();
 
-            var existingProduct = await _db.Products.Where(p => productNames.Contains(p.Name))
+            var existingProduct = (await _db.Products.Where(p => productNames.Contains(p.Name))
                 .Select(p => p.Name)
-                .ToListAsync();
+                .ToListAsync())
+                .ToHashSet();
 
             var reqCategIds = req.Select(c => c.CategoryId).Distinct().ToList();
 
@@ -69,21 +70,8 @@ namespace NetShopAPI.Services.PositionProductsServices
             {
                 var response = new BulkPositionResponse();
 
-                if (!existingCategories.TryGetValue(prod.CategoryId, out var category))
-                {
-                    response.ErrorsAddCategory.Add(new
-                        BulkPositionResponse.ErrorsCategories(prod.CategoryId,
-                        "В базе данных не существует ID данной категории."));
-
-                }
-
-                if (existingProduct.Contains(prod.Name))
-                {
-                    response.ErrorsAddPosition.Add(new BulkPositionResponse.Errors(prod.Name,
-                        " - Продукт с данным именем уже существует в базе данных."));
-                }
-
-                if (response.ErrorsAddCategory.Any() || response.ErrorsAddPosition.Any())
+                if (!PositionServiceManager.TryValidate(prod, response, existingCategories,
+                    existingProduct, out var category))
                 {
                     response.IsSuccess = false;
                     responses.Add(response);
@@ -91,7 +79,7 @@ namespace NetShopAPI.Services.PositionProductsServices
                 }
 
                 var newProduct = PositionServiceManager.GetCreationProduct(prod);
-                var newPosition = PositionServiceManager.GetCreationPosition(newProduct, prod, category);
+                var newPosition = PositionServiceManager.GetCreationPosition(newProduct, prod, category!);
 
                 createdPositions.Add(newPosition);
 
@@ -110,15 +98,7 @@ namespace NetShopAPI.Services.PositionProductsServices
                     var pos = createdPositions[i];
                     var successIndex = successResponseIndexes[i];
 
-                    responses[successIndex].PositionId = pos.Id;
-                    responses[successIndex].ProductId = pos.ProductId;
-                    responses[successIndex].Name = pos.Name;
-                    responses[successIndex].Price = pos.Price;
-                    responses[successIndex].Amount = pos.Amount;
-                    responses[successIndex].LastPurchasePrice = pos.LastPurchasePrice;
-                    responses[successIndex].AdditionalInformation = pos.AdditionalInformation;
-                    responses[successIndex].TotalPrice = pos.Price * pos.Amount;
-                    responses[successIndex].CategoryName = pos.CategoryName;
+                    PositionServiceManager.FillSuccessResponse(responses[successIndex], pos);
                 }
             }
 
