@@ -8,6 +8,7 @@ using NetShopAPI.DTOs.CatalogDTO.Products.Response;
 using NetShopAPI.DTOs.PositionsItemDTO;
 using NetShopAPI.Models;
 using NetShopAPI.Models.GeneralWarehouseModel.PositionItem;
+using System.Reflection.Metadata.Ecma335;
 
 namespace NetShopAPI.Services.PositionProductsServices
 {
@@ -30,13 +31,14 @@ namespace NetShopAPI.Services.PositionProductsServices
 
             if (itemStock is null)
                 return Result<PositionAddStockResponse>.NotFound("INVALID_PRODUCT_ID",
-                    $"ProductID не найден в базе данных!");
+                    $"ProductID: {productId} не найден в базе данных!");
 
             itemStock.Amount += quantity;
             await _db.SaveChangesAsync();
 
             var response = new PositionAddStockResponse
             {
+                PositionId = itemStock.Id,
                 ProductId = itemStock.ProductId,
                 Name = itemStock.Name,
                 Amount = itemStock.Amount
@@ -59,9 +61,9 @@ namespace NetShopAPI.Services.PositionProductsServices
             var existingCategories = await _db.ProductCategories
                 .Where(c => reqCategIds.Contains(c.Id)).ToDictionaryAsync(c => c.Id);
 
-            var createdProducts = new List<Product>();
             var createdPositions = new List<Position>();
-            var totalResponse = new List<BulkPositionResponse>();
+            var responses = new List<BulkPositionResponse>(req.Count);
+            var successResponseIndexes = new List<int>();
 
             foreach (var prod in req)
             {
@@ -81,32 +83,46 @@ namespace NetShopAPI.Services.PositionProductsServices
                         " - Продукт с данным именем уже существует в базе данных."));
                 }
 
-                else
+                if (response.ErrorsAddCategory.Any() || response.ErrorsAddPosition.Any())
                 {
-                    if (category is not null)
-                    {
-                        var newProduct = PositionServiceManager.GetCreationProduct(prod);
-                        var newPosition = PositionServiceManager.GetCreationPosition(newProduct, prod, category);
-
-                        response = PositionServiceManager.GetCreationResponse(newPosition, category);
-
-                        createdProducts.Add(newProduct);
-                        createdPositions.Add(newPosition);
-                    }
+                    response.IsSuccess = false;
+                    responses.Add(response);
+                    continue;
                 }
 
-                totalResponse.Add(response);
+                var newProduct = PositionServiceManager.GetCreationProduct(prod);
+                var newPosition = PositionServiceManager.GetCreationPosition(newProduct, prod, category);
+
+                createdPositions.Add(newPosition);
+
+                response.IsSuccess = true;
+                responses.Add(response);
+                successResponseIndexes.Add(responses.Count - 1);
             }
 
-            if (createdProducts.Any())
+            if (createdPositions.Any())
             {
-                _db.Products.AddRange(createdProducts);
                 _db.Positions.AddRange(createdPositions);
-
                 await _db.SaveChangesAsync();
+
+                for (int i = 0; i < createdPositions.Count; i++)
+                {
+                    var pos = createdPositions[i];
+                    var successIndex = successResponseIndexes[i];
+
+                    responses[successIndex].PositionId = pos.Id;
+                    responses[successIndex].ProductId = pos.ProductId;
+                    responses[successIndex].Name = pos.Name;
+                    responses[successIndex].Price = pos.Price;
+                    responses[successIndex].Amount = pos.Amount;
+                    responses[successIndex].LastPurchasePrice = pos.LastPurchasePrice;
+                    responses[successIndex].AdditionalInformation = pos.AdditionalInformation;
+                    responses[successIndex].TotalPrice = pos.Price * pos.Amount;
+                    responses[successIndex].CategoryName = pos.CategoryName;
+                }
             }
 
-            return totalResponse;
+            return responses;
         }
 
 
@@ -118,12 +134,13 @@ namespace NetShopAPI.Services.PositionProductsServices
 
             if (category is null)
                 return Result<List<PositionResponse>>.NotFound("INVALID_CATEGORY_ID",
-                    $"CategoryID не найден в базе данных!");
+                    $"CategoryID: {categoryId} не найден в базе данных!");
 
             var positionsForCategory = await _db.Positions.Where(p => p.CategoryId == category.Id).Select(
                 p => new PositionResponse
                 {
                     Id = p.Id,
+                    ProductId = p.ProductId,
                     Name = p.Name,
                     Price = p.Price,
                     Amount = p.Amount,
@@ -136,7 +153,7 @@ namespace NetShopAPI.Services.PositionProductsServices
         }
 
 
-        public async Task<Result<PositionResponse>> GetPositionProductByIdAsync(Guid id)
+        public async Task<Result<PositionResponse>> GetPositionProductByIdAsync(int id)
         {
             var position = await _db.Positions
           .Where(p => p.Id == id)
@@ -153,7 +170,7 @@ namespace NetShopAPI.Services.PositionProductsServices
           .FirstOrDefaultAsync();
 
             if (position is null) return Result<PositionResponse>.NotFound("INVALID_POSITION_ID",
-                $"PositionID не найден в базе данных!");
+                $"PositionID: {id} не найден в базе данных!");
 
             return Result<PositionResponse>.Ok(position);
         }
