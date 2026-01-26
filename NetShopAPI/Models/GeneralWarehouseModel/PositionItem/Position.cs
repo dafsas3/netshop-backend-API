@@ -2,9 +2,9 @@
 {
     public class Position
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public int ProductId { get; set; }
-        public Product? Product { get; set; }
+        public Product Product { get; set; }
         public required string Name { get; set; }
         public required int Amount { get; set; }
         public required decimal Price { get; set; }
