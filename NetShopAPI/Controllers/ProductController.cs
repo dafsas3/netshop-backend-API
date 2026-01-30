@@ -33,26 +33,26 @@ namespace NetShopAPI.Controllers
 
 
         [HttpGet("by-category/{categoryId:int}")]
-        public async Task<IActionResult> GetByCategory (int categoryId)
+        public async Task<IActionResult> GetByCategory(int categoryId, CancellationToken ct)
         {
-            var result = await _productService.GetPositionProductsByCategoryAsync(categoryId);
+            var result = await _productService.GetPositionProductsByCategoryAsync(categoryId, ct);
             return this.ToActionResult(result);
         }
 
 
         [HttpGet("by-id/{id:guid}")]
-        public async Task<IActionResult> GetById (Guid id)
+        public async Task<IActionResult> GetById(int id, CancellationToken ct)
         {
-            var result = await _productService.GetPositionProductByIdAsync(id);
+            var result = await _productService.GetPositionProductByIdAsync(id, ct);
 
             return this.ToActionResult(result);
         }
 
 
         [HttpPut("addToStock/{productId:int},{addAmount:int}")]
-        public async Task<IActionResult> AddAmountProductToStock(int productId, int addAmount)
+        public async Task<IActionResult> AddAmountProductToStock(int productId, int addAmount, CancellationToken ct)
         {
-            var result = await _productService.AddToStock(productId, addAmount);
+            var result = await _productService.AddToStock(productId, addAmount, ct);
 
             return this.ToActionResult(result);
         }
