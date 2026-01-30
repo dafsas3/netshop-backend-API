@@ -28,7 +28,7 @@ namespace NetShopAPI.Services.OrderServices
 
 
 
-        public async Task<Result<OrderResponse>> CreateUserOrder(CreateOrderRequest req)
+        public async Task<Result<OrderResponse>> CreateUserOrder(CreateOrderRequest req, CancellationToken ct)
         {
             if (!_currentUser.IsAuthenticated || _currentUser.UserId is null)
                 return Result<OrderResponse>.Unauthorized("UNAUTHORIZED", "Требуется авторизация!");
@@ -36,15 +36,15 @@ namespace NetShopAPI.Services.OrderServices
             if (req.ProductIds is null || req.ProductIds.Count == 0)
                 return Result<OrderResponse>.BadRequest("NOT_SELECT_POSITION", "Не выбрано ни одной позиции.");
 
-            var user = await GetUser(_currentUser.UserId.Value);
+            var user = await GetUser(_currentUser.UserId.Value, ct);
 
             if (!user.IsSucces || user.Data is null)
                 return Result<OrderResponse>.NotFound("USER_NOT_FOUND", "Пользователь не найден.");
 
-            var cart = await GetCartUser(user.Data);
+            var cart = await GetCartUser(user.Data, ct);
 
             if (!cart.IsSucces || cart.Data is null || cart.Data.Items is null || !cart.Data.Items.Any())
-                return Result<OrderResponse>.Conflict("USER_CART_IS_EMPTY", "Карзина пуста.");
+                return Result<OrderResponse>.Conflict("USER_CART_IS_EMPTY", "Корзина пуста.");
 
             var selectedItems = cart.Data.Items.Where(i => req.ProductIds.Contains(i.ProductId)).ToList();
 
@@ -55,6 +55,8 @@ namespace NetShopAPI.Services.OrderServices
 
             foreach (var item in selectedItems)
             {
+                ct.ThrowIfCancellationRequested();
+
                 order.Items.Add(new OrderItem
                 {
                     ProductId = item.ProductId,
@@ -69,15 +71,15 @@ namespace NetShopAPI.Services.OrderServices
 
             _db.Orders.Add(order);
             _db.CartItems.RemoveRange(selectedItems);
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(ct);
 
             return Result<OrderResponse>.Created(Map(order));
         }
 
 
-        private async Task<Result<User>> GetUser(Guid userId)
+        private async Task<Result<User>> GetUser(Guid userId, CancellationToken token)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId, token);
 
             if (user is null)
                 return Result<User>.NotFound("USER_NOT_FOUND", "Пользователь не найден.");
@@ -86,10 +88,10 @@ namespace NetShopAPI.Services.OrderServices
         }
 
 
-        private async Task<Result<Cart>> GetCartUser(User user)
+        private async Task<Result<Cart>> GetCartUser(User user, CancellationToken ct)
         {
             var result = await _db.Carts.Include(c => c.Items).ThenInclude(i => i.Product).
-                 FirstOrDefaultAsync(c => c.UserId == user.Id);
+                 FirstOrDefaultAsync(c => c.UserId == user.Id, ct);
 
             return Result<Cart>.Ok(result);
         }
@@ -129,11 +131,13 @@ namespace NetShopAPI.Services.OrderServices
         }
 
 
-        public async Task<Result<OrderResponse>> ChangeOrderStatusAsync(int orderId, OrderStatus NewStatus)
+        public async Task<Result<OrderResponse>> ChangeOrderStatusAsync(int orderId,
+            OrderStatus NewStatus,
+            CancellationToken ct)
         {
             var order = await _db.Orders
                 .Include(o => o.Items)
-                .FirstOrDefaultAsync(o => o.Id == orderId);
+                .FirstOrDefaultAsync(o => o.Id == orderId, ct);
 
             if (order is null)
                 return Result<OrderResponse>.NotFound("ORDER_NOT_FOUND", "Заказ не найден.");
@@ -151,7 +155,7 @@ namespace NetShopAPI.Services.OrderServices
 
             order.Status = NewStatus;
             
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(ct);
 
             return Result<OrderResponse>.Ok(Map(order));
         }
