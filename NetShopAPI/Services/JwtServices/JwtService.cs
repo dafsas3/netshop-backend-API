@@ -18,7 +18,7 @@ namespace NetShopAPI.Services.JwtServices
 
 
 
-        public async Task<string> CreateJwt(User user)
+        public string CreateJwt(User user)
         {
             var jwtSection = _config.GetSection("Jwt");
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Key"]!));
