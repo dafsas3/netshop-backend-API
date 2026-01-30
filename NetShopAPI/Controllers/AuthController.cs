@@ -51,7 +51,7 @@ namespace NetShopAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest req, CancellationToken ct)
         {
-            var result = await _loginService.TryAuthorizationUser(req);
+            var result = await _loginService.TryAuthorizationUser(req, ct);
 
             return this.ToActionResult(result);
         }

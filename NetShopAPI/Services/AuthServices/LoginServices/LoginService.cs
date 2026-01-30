@@ -30,26 +30,25 @@ namespace NetShopAPI.Services.AuthServices.LoginServices
         }
 
 
-        public async Task<Result<string>> TryAuthorizationUser(LoginRequest req)
-        {            
+        public async Task<Result<string>> TryAuthorizationUser(LoginRequest req, CancellationToken ct)
+        {
             var login = req.Login.Trim().ToLowerInvariant();
-                
+
             var user = await _db.Users.FirstOrDefaultAsync(x =>
-                x.Email == login || (x.Phone != null && x.Phone == req.Login.Trim()));
+                x.Email == login || (x.Phone != null && x.Phone == req.Login.Trim()), ct);
 
             if (user is null)
                 return Result<string>.Unauthorized("INVALID_CREDENTIALS", "Неверный логин или пароль!");
 
-            if (!await TryAuthorizationByPassword(user, req))
+            if (!TryAuthorizationByPassword(user, req))
                 return Result<string>.Unauthorized("INVALID_CREDENTIALS", "Неверный логин или пароль!");
-            
-            var token = await _jwtService.CreateJwt(user);
+
+            var token = _jwtService.CreateJwt(user);
             return Result<string>.Ok(token);
         }
 
 
-        public async Task<bool> TryAuthorizationByPassword(User user,
-            LoginRequest req)
+        public bool TryAuthorizationByPassword(User user, LoginRequest req)
         {
             var verify = _hasher.VerifyHashedPassword(user, user.PasswordHash, req.Password);
 

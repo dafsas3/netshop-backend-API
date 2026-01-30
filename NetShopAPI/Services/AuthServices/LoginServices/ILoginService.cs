@@ -7,7 +7,7 @@ namespace NetShopAPI.Services.AuthServices.LoginServices
 {
     public interface ILoginService
     {
-        Task<Result<string>> TryAuthorizationUser(LoginRequest req);
-        Task<bool> TryAuthorizationByPassword(User user, LoginRequest req);
+        Task<Result<string>> TryAuthorizationUser(LoginRequest req, CancellationToken ct);
+        bool TryAuthorizationByPassword(User user, LoginRequest req);
     }
 }
