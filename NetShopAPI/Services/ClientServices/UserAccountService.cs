@@ -22,12 +22,12 @@ namespace NetShopAPI.Services.ClientServices
 
 
 
-        public async Task<Result<UserResponse>> ShowMeAccount()
+        public async Task<Result<UserResponse>> ShowMeAccount(CancellationToken ct)
         {
             if (!_currentUser.IsAuthenticated || _currentUser.UserId is null)
                 return Result<UserResponse>.Unauthorized("UNAUTHORIZED", "Требуется авторизация!");
 
-            var userResult = await TryGetUserByIdAsync(_currentUser.UserId.Value);
+            var userResult = await TryGetUserByIdAsync(_currentUser.UserId.Value, ct);
 
             if (!userResult.IsSucces)
                 return Result<UserResponse>.NotFound("USER_NOT_FOUND", "Пользователь не найден в базе данных.");
@@ -36,7 +36,7 @@ namespace NetShopAPI.Services.ClientServices
         }
 
 
-        public async Task<Result<UserResponse>> TryGetUserByIdAsync(Guid userId)
+        public async Task<Result<UserResponse>> TryGetUserByIdAsync(Guid userId, CancellationToken ct)
         {
             var user = await _db.Users
                 .Where(x => x.Id == userId)
@@ -51,7 +51,7 @@ namespace NetShopAPI.Services.ClientServices
                     Phone = x.Phone,
                     Role = x.Role
                 })
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(ct);
 
             return user is not null
                  ? Result<UserResponse>.Ok(user)
