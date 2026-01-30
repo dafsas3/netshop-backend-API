@@ -7,7 +7,7 @@ namespace NetShopAPI.Services.ClientServices
 {
     public interface IUserAccountService
     {
-        Task<Result<UserResponse>> TryGetUserByIdAsync(Guid userId);
-        Task<Result<UserResponse>> ShowMeAccount();
+        Task<Result<UserResponse>> TryGetUserByIdAsync(Guid userId, CancellationToken ct);
+        Task<Result<UserResponse>> ShowMeAccount(CancellationToken ct);
     }
 }
