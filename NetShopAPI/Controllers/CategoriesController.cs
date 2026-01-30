@@ -24,17 +24,17 @@ namespace NetShopAPI.Controllers
 
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCategory(CategoryRequest req)
+        public async Task<IActionResult> CreateCategory(CategoryRequest req, CancellationToken ct)
         {
-            var result = await _categoryService.CreateCategoryAsync(req);
+            var result = await _categoryService.CreateCategoryAsync(req, ct);
             return Ok(result);
         }
 
 
         [HttpGet("get-all")]
-        public async Task<IActionResult> GetAllCategories()
+        public async Task<IActionResult> GetAllCategories(CancellationToken ct)
         {
-            return Ok(await _categoryService.GetAllAsync());
+            return Ok(await _categoryService.GetAllAsync(ct));
         }
 
 
