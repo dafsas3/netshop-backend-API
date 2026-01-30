@@ -38,33 +38,34 @@ namespace NetShopAPI.Services.AuthServices.RegisterServices
         }
 
 
-        public async Task<bool> IsExistsUserEmailAsync(string email)
+        public async Task<bool> IsExistsUserEmailAsync(string email, CancellationToken ct)
         {
-            if (await _db.Users.AnyAsync(x => x.Email == email))
+            if (await _db.Users.AnyAsync(x => x.Email == email, ct))
                 return true;
 
             return false;
         }
 
 
-        public async Task<bool> IsExistsUserPhoneNumber(string Phone)
+        public async Task<bool> IsExistsUserPhoneNumber(string Phone, CancellationToken ct)
         {
             var phone = Phone.Trim();
-            if (await _db.Users.AnyAsync(x => x.Phone == phone))
+            if (await _db.Users.AnyAsync(x => x.Phone == phone, ct))
                 return true;
 
             return false;
         }
 
 
-        public async Task<Result<UserResponse>> IsExistsUserEmailOrPhone(string Phone, string email)
+        public async Task<Result<UserResponse>> IsExistsUserEmailOrPhone(string Phone, string email,
+            CancellationToken ct)
         {
-            if (await IsExistsUserEmailAsync(email))
+            if (await IsExistsUserEmailAsync(email, ct))
                 return Result<UserResponse>.Conflict("EMAIL_ALREADY_EXISTS",
                     "Данный email уже используется!");
 
             if (!string.IsNullOrWhiteSpace(Phone) &&
-                await IsExistsUserPhoneNumber(Phone))
+                await IsExistsUserPhoneNumber(Phone, ct))
                 return Result<UserResponse>.Conflict("PHONE_ALREADY_EXISTS",
                     "Данный номер телефона уже используется!");
 
@@ -72,11 +73,11 @@ namespace NetShopAPI.Services.AuthServices.RegisterServices
         }
 
 
-        public async Task<Result<UserResponse>> CreateUser(RegisterRequest req)
+        public async Task<Result<UserResponse>> CreateUser(RegisterRequest req, CancellationToken ct)
         {
             var email = GetUserEmail(req);
 
-            var check = await IsExistsUserEmailOrPhone(req.Phone, email);
+            var check = await IsExistsUserEmailOrPhone(req.Phone, email, ct);
 
             if (!check.IsSucces) return check;
 
@@ -96,7 +97,7 @@ namespace NetShopAPI.Services.AuthServices.RegisterServices
             user.PasswordHash = GetHashUserPassword(user, req);
 
             _db.Users.Add(user);
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(ct);
 
             var response = new UserResponse
             {

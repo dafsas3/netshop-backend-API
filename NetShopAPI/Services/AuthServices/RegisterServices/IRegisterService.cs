@@ -8,9 +8,10 @@ namespace NetShopAPI.Services.AuthServices.RegisterServices
     public interface IRegisterService
     {
         string GetUserEmail(RegisterRequest request);
-        Task<bool> IsExistsUserEmailAsync(string email);
-        Task<bool> IsExistsUserPhoneNumber(string Phone);
-        Task<Result<UserResponse>> IsExistsUserEmailOrPhone(string Phone, string email);
-        Task<Result<UserResponse>> CreateUser(RegisterRequest req);
+        Task<bool> IsExistsUserEmailAsync(string email, CancellationToken ct);
+        Task<bool> IsExistsUserPhoneNumber(string Phone, CancellationToken ct);
+        Task<Result<UserResponse>> IsExistsUserEmailOrPhone(string Phone,
+            string email, CancellationToken ct);
+        Task<Result<UserResponse>> CreateUser(RegisterRequest req, CancellationToken ct);
     }
 }
