@@ -6,7 +6,7 @@ namespace NetShopAPI.Services.CatalogServices
 {
     public interface ICategoryService
     {
-        Task<Result<CategoryResponse>> CreateCategoryAsync(CategoryRequest request);
-        Task<List<CategoryResponse>> GetAllAsync();
+        Task<Result<CategoryResponse>> CreateCategoryAsync(CategoryRequest request, CancellationToken ct);
+        Task<List<CategoryResponse>> GetAllAsync(CancellationToken ct);
     }
 }

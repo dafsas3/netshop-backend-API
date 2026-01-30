@@ -18,9 +18,9 @@ namespace NetShopAPI.Services.CatalogServices
         }
 
 
-        public async Task<Result<CategoryResponse>> CreateCategoryAsync(CategoryRequest req)
+        public async Task<Result<CategoryResponse>> CreateCategoryAsync(CategoryRequest req, CancellationToken ct)
         {
-            if (await _db.ProductCategories.AnyAsync(c => c.Name == req.Name))
+            if (await _db.ProductCategories.AnyAsync(c => c.Name == req.Name, ct))
                 return Result<CategoryResponse>.Conflict("CATEGORY_ALREADY_EXISTS",
                     "Данная категория уже существует в базе данных!");
 
@@ -30,7 +30,7 @@ namespace NetShopAPI.Services.CatalogServices
             };
 
             _db.ProductCategories.Add(category);
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(ct);
 
             var response = new CategoryResponse
             {
@@ -42,13 +42,13 @@ namespace NetShopAPI.Services.CatalogServices
         }
 
 
-        public async Task<List<CategoryResponse>> GetAllAsync()
+        public async Task<List<CategoryResponse>> GetAllAsync(CancellationToken ct)
         {
             return await _db.ProductCategories.Select(c => new CategoryResponse
             {
                 Id = c.Id,
                 Name = c.Name!
-            }).ToListAsync();
+            }).ToListAsync(ct);
         }
 
     }
