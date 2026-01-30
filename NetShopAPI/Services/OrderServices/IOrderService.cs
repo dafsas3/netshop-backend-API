@@ -6,6 +6,6 @@ namespace NetShopAPI.Services.OrderServices
 {
     public interface IOrderService
     {
-        Task<Result<OrderResponse>> CreateUserOrder(CreateOrderRequest req);
+        Task<Result<OrderResponse>> CreateUserOrder(CreateOrderRequest req, CancellationToken ct);
     }
 }

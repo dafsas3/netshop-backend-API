@@ -24,9 +24,9 @@ namespace NetShopAPI.Controllers
 
         [Authorize]
         [HttpPost("create")]
-        public async Task<IActionResult> CreateOrder(CreateOrderRequest req)
+        public async Task<IActionResult> CreateOrder(CreateOrderRequest req, CancellationToken ct)
         {
-            var result = await _orderService.CreateUserOrder(req);
+            var result = await _orderService.CreateUserOrder(req, ct);
 
             return Ok(result);
         }
