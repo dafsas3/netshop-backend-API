@@ -40,16 +40,16 @@ namespace NetShopAPI.Controllers
 
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterRequest req)
+        public async Task<IActionResult> Register(RegisterRequest req, CancellationToken ct)
         {
-            var result = await _registerService.CreateUser(req);
+            var result = await _registerService.CreateUser(req, ct);
 
             return this.ToActionResult(result);
         }
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest req)
+        public async Task<IActionResult> Login(LoginRequest req, CancellationToken ct)
         {
             var result = await _loginService.TryAuthorizationUser(req);
 
@@ -59,9 +59,9 @@ namespace NetShopAPI.Controllers
 
         [Authorize]
         [HttpGet("me")]
-        public async Task<IActionResult> Me()
+        public async Task<IActionResult> Me(CancellationToken ct)
         {
-            var result = await _userAccountService.ShowMeAccount();
+            var result = await _userAccountService.ShowMeAccount(ct);
 
             return this.ToActionResult(result);
         }
