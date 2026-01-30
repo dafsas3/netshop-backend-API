@@ -25,9 +25,9 @@ namespace NetShopAPI.Controllers
 
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreateProduct(List<ProductRequest> req)
+        public async Task<IActionResult> CreateProduct(List<ProductRequest> req, CancellationToken ct)
         {
-            var result = await _productService.CreatePositionProductAsync(req);
+            var result = await _productService.CreatePositionProductAsync(req, ct);
             return Ok(result);
         }
 
