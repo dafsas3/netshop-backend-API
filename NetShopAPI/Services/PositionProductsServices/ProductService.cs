@@ -23,18 +23,19 @@ namespace NetShopAPI.Services.PositionProductsServices
         }
 
 
-        public async Task<Result<PositionAddStockResponse>> AddToStock(int productId, int quantity)
+        public async Task<Result<PositionAddStockResponse>> AddToStock(int productId, int quantity,
+            CancellationToken ct)
         {
             var itemStock = await _db.Positions
                 .Where(p => p.ProductId == productId)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(ct);
 
             if (itemStock is null)
                 return Result<PositionAddStockResponse>.NotFound("INVALID_PRODUCT_ID",
                     $"ProductID: {productId} не найден в базе данных!");
 
             itemStock.Amount += quantity;
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(ct);
 
             var response = new PositionAddStockResponse
             {
@@ -48,19 +49,20 @@ namespace NetShopAPI.Services.PositionProductsServices
         }
 
 
-        public async Task<List<BulkPositionResponse>> CreatePositionProductAsync(List<ProductRequest> req)
+        public async Task<List<BulkPositionResponse>> CreatePositionProductAsync(List<ProductRequest> req,
+            CancellationToken ct)
         {
             var productNames = req.Select(p => p.Name).Distinct().ToList();
 
             var existingProduct = (await _db.Products.Where(p => productNames.Contains(p.Name))
                 .Select(p => p.Name)
-                .ToListAsync())
+                .ToListAsync(ct))
                 .ToHashSet();
 
             var reqCategIds = req.Select(c => c.CategoryId).Distinct().ToList();
 
             var existingCategories = await _db.ProductCategories
-                .Where(c => reqCategIds.Contains(c.Id)).ToDictionaryAsync(c => c.Id);
+                .Where(c => reqCategIds.Contains(c.Id)).ToDictionaryAsync(c => c.Id, ct);
 
             var createdPositions = new List<Position>();
             var responses = new List<BulkPositionResponse>(req.Count);
@@ -91,7 +93,7 @@ namespace NetShopAPI.Services.PositionProductsServices
             if (createdPositions.Any())
             {
                 _db.Positions.AddRange(createdPositions);
-                await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync(ct);
 
                 for (int i = 0; i < createdPositions.Count; i++)
                 {
@@ -106,11 +108,12 @@ namespace NetShopAPI.Services.PositionProductsServices
         }
 
 
-        public async Task<Result<List<PositionResponse>>> GetPositionProductsByCategoryAsync(int categoryId)
+        public async Task<Result<List<PositionResponse>>> GetPositionProductsByCategoryAsync(int categoryId,
+            CancellationToken ct)
         {
             var category = await _db.ProductCategories
                 .Where(c => c.Id == categoryId)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(ct);
 
             if (category is null)
                 return Result<List<PositionResponse>>.NotFound("INVALID_CATEGORY_ID",
@@ -127,13 +130,13 @@ namespace NetShopAPI.Services.PositionProductsServices
                     AdditionalInformation = p.AdditionalInformation,
                     TotalPrice = p.Price * p.Amount,
                     CategoryName = category.Name
-                }).ToListAsync();
+                }).ToListAsync(ct);
 
             return Result<List<PositionResponse>>.Ok(positionsForCategory);
         }
 
 
-        public async Task<Result<PositionResponse>> GetPositionProductByIdAsync(int id)
+        public async Task<Result<PositionResponse>> GetPositionProductByIdAsync(int id, CancellationToken ct)
         {
             var position = await _db.Positions
           .Where(p => p.Id == id)
@@ -147,7 +150,7 @@ namespace NetShopAPI.Services.PositionProductsServices
               Id = id,
               TotalPrice = p.Price * p.Amount
           })
-          .FirstOrDefaultAsync();
+          .FirstOrDefaultAsync(ct);
 
             if (position is null) return Result<PositionResponse>.NotFound("INVALID_POSITION_ID",
                 $"PositionID: {id} не найден в базе данных!");

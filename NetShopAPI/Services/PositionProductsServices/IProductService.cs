@@ -8,9 +8,12 @@ namespace NetShopAPI.Services.PositionProductsServices
 {
     public interface IProductService
     {
-        Task<List<BulkPositionResponse>> CreatePositionProductAsync(List<ProductRequest> req);
-        Task<Result<List<PositionResponse>>> GetPositionProductsByCategoryAsync(int categoryId);
-        Task<Result<PositionResponse>> GetPositionProductByIdAsync(int id);
-        Task<Result<PositionAddStockResponse>> AddToStock(int productId, int quantity);
+        Task<List<BulkPositionResponse>> CreatePositionProductAsync(List<ProductRequest> req,
+            CancellationToken ct);
+        Task<Result<List<PositionResponse>>> GetPositionProductsByCategoryAsync(int categoryId,
+            CancellationToken ct);
+        Task<Result<PositionResponse>> GetPositionProductByIdAsync(int id, CancellationToken ct);
+        Task<Result<PositionAddStockResponse>> AddToStock(int productId, int quantity,
+            CancellationToken ct);
     }
 }
