@@ -27,12 +27,12 @@ namespace NetShopAPI.Services.CartServices
 
 
 
-        public async Task<Result<CartResponse>> GetUserCartAsync()
+        public async Task<Result<CartResponse>> GetUserCartAsync(CancellationToken ct)
         {
             if (!_currentUser.IsAuthenticated || _currentUser.UserId is null)
                 return Result<CartResponse>.Unauthorized("UNAUTHORIZED", "Требуется авторизация!");
 
-            var user = await _userAccount.TryGetUserByIdAsync(_currentUser.UserId.Value);
+            var user = await _userAccount.TryGetUserByIdAsync(_currentUser.UserId.Value, ct);
 
             if (user is null)
                 return Result<CartResponse>.NotFound("USER_NOT_FOUND", "Пользователь не найден в базе данных.");
@@ -40,7 +40,7 @@ namespace NetShopAPI.Services.CartServices
             var cart = await _db.Carts
                 .Include(c => c.Items)
                 .ThenInclude(i => i.Product)
-                .FirstOrDefaultAsync(c => c.UserId == user.Data.Id);
+                .FirstOrDefaultAsync(c => c.UserId == user.Data.Id, ct);
 
             if (cart is null)
                 return Result<CartResponse>.Ok(new CartResponse());
@@ -64,33 +64,33 @@ namespace NetShopAPI.Services.CartServices
         }
 
 
-        private async Task<Cart> GetOrCreateUserCartAsync(Guid userId)
+        private async Task<Cart> GetOrCreateUserCartAsync(Guid userId, CancellationToken ct)
         {
             var cart = await _db.Carts
                 .Include(c => c.Items)
                 .ThenInclude(i => i.Product)
-                .FirstOrDefaultAsync(c => c.UserId == userId);
+                .FirstOrDefaultAsync(c => c.UserId == userId, ct);
 
             if (cart is null)
             {
                 cart = new Cart { UserId = userId };
                 _db.Carts.Add(cart);
-                await _db.SaveChangesAsync();
+                await _db.SaveChangesAsync(ct);
             }
 
             return cart;
         }
 
 
-        public async Task<Result<CartResponse>> AddProductToUserCart(AddToCartRequest req)
+        public async Task<Result<CartResponse>> AddProductToUserCart(AddToCartRequest req, CancellationToken ct)
         {
-            var user = await GetUserMap();
+            var user = await GetUserMap(ct);
 
             if (!user.IsSucces) return Result<CartResponse>.Unauthorized("UNAUTHORIZED", "Требуется авторизация!");
 
-            var cart = await GetOrCreateUserCartAsync(user.Data.Id);
+            var cart = await GetOrCreateUserCartAsync(user.Data.Id, ct);
 
-            var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == req.ProductId);
+            var product = await _db.Products.FirstOrDefaultAsync(p => p.Id == req.ProductId, ct);
 
             if (product is null)
                 return Result<CartResponse>.NotFound("PRODUCT_NOT_FOUND", "Продукт не найден.");
@@ -107,18 +107,18 @@ namespace NetShopAPI.Services.CartServices
                 });
             }
 
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(ct);
 
             return Result<CartResponse>.Ok(Map(cart));
         }
 
 
-        private async Task<Result<UserResponse>> GetUserMap()
+        private async Task<Result<UserResponse>> GetUserMap(CancellationToken ct)
         {
             if (!_currentUser.IsAuthenticated || _currentUser.UserId is null)
                 return Result<UserResponse>.Unauthorized("UNAUTHORIZED", "Требуется авторизация!");
 
-            var user = await _userAccount.TryGetUserByIdAsync(_currentUser.UserId.Value);
+            var user = await _userAccount.TryGetUserByIdAsync(_currentUser.UserId.Value, ct);
 
             if (user is null)
                 return Result<UserResponse>.NotFound("USER_NOT_FOUND", "Пользователь не найден в базе данных.");

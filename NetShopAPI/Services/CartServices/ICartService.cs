@@ -7,7 +7,7 @@ namespace NetShopAPI.Services.CartServices
 {
     public interface ICartService
     {
-        Task<Result<CartResponse>> GetUserCartAsync();
-        Task<Result<CartResponse>> AddProductToUserCart(AddToCartRequest req);
+        Task<Result<CartResponse>> GetUserCartAsync(CancellationToken ct);
+        Task<Result<CartResponse>> AddProductToUserCart(AddToCartRequest req, CancellationToken ct);
     }
 }
