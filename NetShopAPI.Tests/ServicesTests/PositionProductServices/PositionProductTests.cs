@@ -75,6 +75,26 @@ namespace NetShopAPI.Tests.ServicesTests.PositionProductServices
         }
 
 
+        [Fact]
+        public async Task AddToStock_When_Product_is_null_return_NotFound()
+        {
+            int testProductId = 1;
+
+            var (db, conn) = await SqliteInMemoryDbFactory.CreateDbAsync();
+            await using var _ = conn;
+            await using var __ = db;
+
+            var service = new ProductService(db);
+
+            var result = await service.AddToStock(testProductId, quantity: 1, CancellationToken.None);
+
+            Assert.False(result.IsSucces);
+            Assert.Null(result.Data);
+
+            Assert.NotNull(result.Error);
+            Assert.Equal("INVALID_PRODUCT_ID", result.Error.Code);
+            Assert.Equal(0, await db.Positions.CountAsync());
+        }
 
 
     }
