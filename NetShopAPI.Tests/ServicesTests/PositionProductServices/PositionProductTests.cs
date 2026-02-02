@@ -52,12 +52,14 @@ namespace NetShopAPI.Tests.ServicesTests.PositionProductServices
         [InlineData(-1)]
         public async Task AddToStock_When_quantity_is_zero_or_negative_Should_return_BadRequest(int quantity)
         {
+            int expected = 1;
+            int initTestPositionAmount = 1;
+
             var (db, conn) = await SqliteInMemoryDbFactory.CreateDbAsync();
             await using var _ = conn;
             await using var __ = db;
 
-            var (category, product, position) = PositionTestDataFactory.CreateCategoryProductPosition(
-                initAmount: 1);
+            var (category, product, position) = PositionTestDataFactory.CreateCategoryProductPosition(initTestPositionAmount);
 
             await PositionTestDataFactory.SeedAsync(db, category, product, position);
 
@@ -65,14 +67,15 @@ namespace NetShopAPI.Tests.ServicesTests.PositionProductServices
 
             var result = await service.AddToStock(product.Id, quantity, CancellationToken.None);
 
-            Assert.False(result.IsSucces);
-            Assert.Null(result.Data);
+            result.IsSucces.Should().BeFalse();
+            result.Data.Should().BeNull();
 
-            Assert.NotNull(result.Error);
-            Assert.Equal("INVALID_QUANTITY", result.Error.Code);
+            result.Error.Should().NotBeNull();
+            result.Error.Code.Should().Be("INVALID_QUANTITY");
 
             var updated = await db.Positions.FirstAsync(p => p.ProductId == product.Id);
-            Assert.Equal(1, updated.Amount);
+
+            updated.Should().Be(expected);
         }
 
 
