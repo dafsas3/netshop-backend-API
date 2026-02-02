@@ -7,6 +7,7 @@ using NetShopAPI.Services.PositionProductsServices;
 using NetShopAPI.Tests.Infrastructure.DbFactory;
 using NetShopAPI.Tests.TestDataFactory;
 using Xunit;
+using FluentAssertions;
 
 namespace NetShopAPI.Tests.ServicesTests.PositionProductServices
 {
@@ -88,12 +89,13 @@ namespace NetShopAPI.Tests.ServicesTests.PositionProductServices
 
             var result = await service.AddToStock(testProductId, quantity: 1, CancellationToken.None);
 
-            Assert.False(result.IsSucces);
-            Assert.Null(result.Data);
+            result.IsSucces.Should().BeFalse();
+            result.Data.Should().BeNull();
 
-            Assert.NotNull(result.Error);
-            Assert.Equal("INVALID_PRODUCT_ID", result.Error.Code);
-            Assert.Equal(0, await db.Positions.CountAsync());
+            result.Error.Should().NotBeNull();
+            result.Error.Code.Should().Be("INVALID_PRODUCT_ID");
+
+            (await db.Positions.AnyAsync()).Should().BeFalse();
         }
 
 
