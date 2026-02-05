@@ -14,10 +14,14 @@ Backend REST API for an online shop built with ASP.NET Core (.NET 8).
 - FluentValidation
 - REST API
 - Git
+- Unit-testing
+- Integration testing
 
 ---
 
 ## Architecture
+- CQRS-lite (Commands / Queries, Handlers / Repositories)
+- Bulk-operations
 - Layered architecture (Controllers / Services / Data / DTO)
 - Thin controllers
 - Business logic isolated in services
@@ -54,6 +58,7 @@ Invalid status transitions are blocked at service level.
 
 ## Database
 - MySQL
+- Sqlite
 - Code First migrations (EF Core)
 
 ---
