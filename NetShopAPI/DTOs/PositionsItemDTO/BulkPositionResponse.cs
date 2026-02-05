@@ -18,7 +18,7 @@ namespace NetShopAPI.DTOs.PositionsItemDTO
 
         public List<Errors> ErrorsAddPosition { get; set; } = new();
         public List<ErrorsCategories> ErrorsAddCategory { get; set; } = new();
-        public record Errors(string Name, string Message);
-        public record ErrorsCategories(int id, string Message);
+        public record Errors(string Code, string Message);
+        public record ErrorsCategories(string Code, string Message);
     }
 }

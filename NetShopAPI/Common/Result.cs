@@ -6,7 +6,7 @@
         public T? Data { get; set; }
         public ApiError? Error { get; set; }
 
-        public bool IsSucces => Status is ResultStatus.Ok or ResultStatus.Created;
+        public bool IsSuccess => Status is ResultStatus.Ok or ResultStatus.Created;
 
         public static Result<T> Ok(T data) => new() { Status = ResultStatus.Ok, Data = data };
         public static Result<T> Created(T data) => new() { Status = ResultStatus.Created, Data = data };

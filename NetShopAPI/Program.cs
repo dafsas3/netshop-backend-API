@@ -12,13 +12,14 @@ using NetShopAPI.Services.CatalogServices;
 using NetShopAPI.Services.PositionProductsServices;
 using NetShopAPI.Services.CartServices;
 using NetShopAPI.Services.OrderServices;
-using NetShopAPI.Middlewares;
 using NetShopAPI.Services.SupplyServices;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using NetShopAPI.DTOs.Validators.AuthValidator;
 using NetShopAPI.Services.ClientServices;
 using NetShopAPI.Services.CurrentUserServices;
+using NetShopAPI.Infrastructure.Persistence.Middlewares;
+using NetShopAPI.Features.Stock.Commands.AddToStock;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +60,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddScoped<AddToStockHandler>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 builder.Services.AddScoped<IRegisterService, RegisterService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();

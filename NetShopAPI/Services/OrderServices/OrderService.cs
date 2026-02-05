@@ -38,12 +38,12 @@ namespace NetShopAPI.Services.OrderServices
 
             var user = await GetUser(_currentUser.UserId.Value, ct);
 
-            if (!user.IsSucces || user.Data is null)
+            if (!user.IsSuccess || user.Data is null)
                 return Result<OrderResponse>.NotFound("USER_NOT_FOUND", "Пользователь не найден.");
 
             var cart = await GetCartUser(user.Data, ct);
 
-            if (!cart.IsSucces || cart.Data is null || cart.Data.Items is null || !cart.Data.Items.Any())
+            if (!cart.IsSuccess || cart.Data is null || cart.Data.Items is null || !cart.Data.Items.Any())
                 return Result<OrderResponse>.Conflict("USER_CART_IS_EMPTY", "Корзина пуста.");
 
             var selectedItems = cart.Data.Items.Where(i => req.ProductIds.Contains(i.ProductId)).ToList();

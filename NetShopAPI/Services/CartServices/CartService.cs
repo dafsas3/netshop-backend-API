@@ -86,7 +86,7 @@ namespace NetShopAPI.Services.CartServices
         {
             var user = await GetUserMap(ct);
 
-            if (!user.IsSucces) return Result<CartResponse>.Unauthorized("UNAUTHORIZED", "Требуется авторизация!");
+            if (!user.IsSuccess) return Result<CartResponse>.Unauthorized("UNAUTHORIZED", "Требуется авторизация!");
 
             var cart = await GetOrCreateUserCartAsync(user.Data.Id, ct);
 
