@@ -22,6 +22,8 @@ namespace NetShopAPI.Tests.ServicesTests.PositionProductServices
         public async Task AddToStock_When_position_exists_Should_increase_amount_save_and_return_ok(
             int initAmountProduct, int addQuantity)
         {
+            var expectedAmount = initAmountProduct + addQuantity;
+
             var (db, conn) = await SqliteInMemoryDbFactory.CreateDbAsync();
             await using var _ = conn;
             await using var __ = db;
@@ -33,17 +35,20 @@ namespace NetShopAPI.Tests.ServicesTests.PositionProductServices
 
             var result = await service.AddToStock(product.Id, addQuantity, CancellationToken.None);
 
-            Assert.True(result.IsSucces);
-            Assert.NotNull(result.Data);
+            result.IsSucces.Should().BeTrue();
+            result.Data.Should().NotBeNull();
 
-            Assert.Equal(position.Id, result.Data.PositionId);
-            Assert.Equal(product.Id, result.Data.ProductId);
-            Assert.Equal(position.Name, result.Data.Name);
-            Assert.Equal(initAmountProduct + addQuantity, result.Data.Amount);
+            result.Data.Should().BeEquivalentTo(new
+            {
+                PositionId = position.Id,
+                ProductId = product.Id,
+                Name = position.Name,
+                Amount = expectedAmount
+            });
 
             var updated = await db.Positions.FirstAsync(p => p.ProductId == product.Id);
 
-            Assert.Equal(initAmountProduct + addQuantity, updated.Amount);
+            updated.Amount.Should().Be(expectedAmount);
         }
 
 
@@ -74,8 +79,7 @@ namespace NetShopAPI.Tests.ServicesTests.PositionProductServices
             result.Error.Code.Should().Be("INVALID_QUANTITY");
 
             var updated = await db.Positions.FirstAsync(p => p.ProductId == product.Id);
-
-            updated.Should().Be(expected);
+            updated.Amount.Should().Be(expected);
         }
 
 
