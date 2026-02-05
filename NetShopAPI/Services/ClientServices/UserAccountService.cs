@@ -29,7 +29,7 @@ namespace NetShopAPI.Services.ClientServices
 
             var userResult = await TryGetUserByIdAsync(_currentUser.UserId.Value, ct);
 
-            if (!userResult.IsSucces)
+            if (!userResult.IsSuccess)
                 return Result<UserResponse>.NotFound("USER_NOT_FOUND", "Пользователь не найден в базе данных.");
 
             return Result<UserResponse>.Ok(userResult.Data);

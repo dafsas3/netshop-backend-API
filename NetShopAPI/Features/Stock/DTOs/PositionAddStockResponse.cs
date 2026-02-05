@@ -1,4 +1,4 @@
-﻿namespace NetShopAPI.DTOs.PositionsItemDTO
+﻿namespace NetShopAPI.Features.Stock.DTOs
 {
     public class PositionAddStockResponse
     {

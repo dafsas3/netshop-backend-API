@@ -79,7 +79,7 @@ namespace NetShopAPI.Services.AuthServices.RegisterServices
 
             var check = await IsExistsUserEmailOrPhone(req.Phone, email, ct);
 
-            if (!check.IsSucces) return check;
+            if (!check.IsSuccess) return check;
 
             var user = new User
             {

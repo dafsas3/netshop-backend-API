@@ -1,6 +1,6 @@
 ﻿using NetShopAPI.Common;
 
-namespace NetShopAPI.Middlewares
+namespace NetShopAPI.Infrastructure.Persistence.Middlewares
 {
     public class ExceptionHandlingMiddleware
     {
@@ -12,7 +12,7 @@ namespace NetShopAPI.Middlewares
         public ExceptionHandlingMiddleware(
             RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger, IHostEnvironment env)
         {
-            
+
             _next = next;
             _logger = logger;
             _environment = env;

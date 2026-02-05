@@ -6,6 +6,7 @@ using NetShopAPI.Data;
 using NetShopAPI.DTOs.CatalogDTO.Products.Request;
 using NetShopAPI.DTOs.CatalogDTO.Products.Response;
 using NetShopAPI.DTOs.PositionsItemDTO;
+using NetShopAPI.Features.Stock.DTOs;
 using NetShopAPI.Models;
 using NetShopAPI.Models.GeneralWarehouseModel.PositionItem;
 using System.Reflection.Metadata.Ecma335;
@@ -26,12 +27,18 @@ namespace NetShopAPI.Services.PositionProductsServices
         public async Task<Result<PositionAddStockResponse>> AddToStock(int productId, int quantity,
             CancellationToken ct)
         {
+            if (quantity <= 0) 
+                return Result<PositionAddStockResponse>.BadRequest(
+                "INVALID_QUANTITY",
+                $"Введённое количество добавляемого продукта не может быть: {quantity}");
+
             var itemStock = await _db.Positions
                 .Where(p => p.ProductId == productId)
                 .FirstOrDefaultAsync(ct);
 
             if (itemStock is null)
-                return Result<PositionAddStockResponse>.NotFound("INVALID_PRODUCT_ID",
+                return Result<PositionAddStockResponse>.NotFound(
+                    "INVALID_PRODUCT_ID",
                     $"ProductID: {productId} не найден в базе данных!");
 
             itemStock.Amount += quantity;
@@ -143,7 +150,7 @@ namespace NetShopAPI.Services.PositionProductsServices
           .Select(p => new PositionResponse
           {
               Name = p.Name,
-              AdditionalInformation = p.AdditionalInformation,
+              AdditionalInformation = p.AdditionalInformation,  
               Price = p.Price,
               CategoryName = p.Category.Name,
               Amount = p.Amount,

@@ -5,6 +5,7 @@ using NetShopAPI.Common;
 using NetShopAPI.Data;
 using NetShopAPI.DTOs.CatalogDTO.Products.Request;
 using NetShopAPI.DTOs.CatalogDTO.Products.Response;
+using NetShopAPI.Features.Stock.Commands.AddToStock;
 using NetShopAPI.Models;
 using NetShopAPI.Services.PositionProductsServices;
 
@@ -16,10 +17,12 @@ namespace NetShopAPI.Controllers
     {
 
         private readonly IProductService _productService;
+        private readonly AddToStockHandler _handler;
 
-        public ProductController(IProductService productService)
+        public ProductController(IProductService productService, AddToStockHandler handler)
         {
             _productService = productService;
+            _handler = handler;
         }
 
 
@@ -50,9 +53,9 @@ namespace NetShopAPI.Controllers
 
 
         [HttpPut("addToStock/{productId:int},{addAmount:int}")]
-        public async Task<IActionResult> AddAmountProductToStock(int productId, int addAmount, CancellationToken ct)
+        public async Task<IActionResult> AddProductToStock([FromBody] AddToStockCommand command, CancellationToken ct)
         {
-            var result = await _productService.AddToStock(productId, addAmount, ct);
+            var result = await _handler.Handle(command, ct);
 
             return this.ToActionResult(result);
         }

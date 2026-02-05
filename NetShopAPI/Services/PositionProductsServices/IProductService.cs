@@ -2,6 +2,7 @@
 using NetShopAPI.DTOs.CatalogDTO.Products.Request;
 using NetShopAPI.DTOs.CatalogDTO.Products.Response;
 using NetShopAPI.DTOs.PositionsItemDTO;
+using NetShopAPI.Features.Stock.DTOs;
 using NetShopAPI.Models;
 
 namespace NetShopAPI.Services.PositionProductsServices
