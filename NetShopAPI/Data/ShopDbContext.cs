@@ -17,22 +17,43 @@ namespace NetShopAPI.Data
         public DbSet<Cart> Carts => Set<Cart>();
         public DbSet<CartItem> CartItems => Set<CartItem>();
         public DbSet<Order> Orders => Set<Order>();
-
         public DbSet<Position> Positions => Set<Position>();
         public DbSet<SupplyLog> SupplyLogs => Set<SupplyLog>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>().HasIndex(x => x.Email).IsUnique();
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(u => u.Id);
+                entity.Property(u => u.Id).ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<User>().HasIndex(x => x.Phone).IsUnique().HasFilter("[Phone] IS NOT NULL");
+                entity.Property(u => u.FirstName).HasMaxLength(20).IsRequired();
+                entity.Property(u => u.SurName).HasMaxLength(30).IsRequired();
+                entity.Property(u => u.LastName).HasMaxLength(40);
+
+                entity.Property(u => u.Email).HasMaxLength(320).IsRequired();
+                entity.HasIndex(u => u.Email).IsUnique().HasDatabaseName("UX_Users_Email");
+
+                entity.Property(u => u.Phone).HasMaxLength(30);
+                entity.HasIndex(u => u.Phone).IsUnique().HasDatabaseName("UX_Users_Phone");
+
+                entity.Property(u => u.NickName).HasMaxLength(20).IsRequired();
+                entity.HasIndex(u => u.NickName).IsUnique().HasDatabaseName("UX_Users_NickName");
+
+                entity.Property(u => u.PasswordHash).HasMaxLength(255).IsRequired();
+
+                entity.Property(u => u.Role).HasMaxLength(20).IsRequired();
+
+                entity.Property(u => u.CreatedAtUtc).IsRequired().HasColumnType("datetime(6)");
+                entity.HasIndex(u => u.CreatedAtUtc);
+            });
 
             modelBuilder.Entity<Order>(e =>
             {
                 e.Property(x => x.Status)
-                .HasConversion<string>()
-                .HasMaxLength(32);
+                .HasColumnType("tinyint unsigned");
+
                 e.HasIndex(x => x.Status);
             });
         }
