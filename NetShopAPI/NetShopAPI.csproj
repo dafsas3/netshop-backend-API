@@ -22,7 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Catalog\DTOs\" />
+    <Folder Include="Features\Authorized\Register\DTOs\" />
+    <Folder Include="Features\Catalog\Categories\DTOs\" />
+    <Folder Include="Services\JwtServices\" />
   </ItemGroup>
 
 </Project>
