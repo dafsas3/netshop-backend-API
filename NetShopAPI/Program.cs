@@ -5,21 +5,24 @@ using NetShopAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using NetShopAPI.Services.AuthServices.LoginServices;
-using NetShopAPI.Services.AuthServices.RegisterServices;
-using NetShopAPI.Services.JwtServices;
-using NetShopAPI.Services.CatalogServices;
-using NetShopAPI.Services.PositionProductsServices;
 using NetShopAPI.Services.CartServices;
 using NetShopAPI.Services.OrderServices;
 using NetShopAPI.Services.SupplyServices;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using NetShopAPI.DTOs.Validators.AuthValidator;
 using NetShopAPI.Services.ClientServices;
 using NetShopAPI.Services.CurrentUserServices;
 using NetShopAPI.Infrastructure.Persistence.Middlewares;
 using NetShopAPI.Features.Stock.Commands.AddToStock;
+using NetShopAPI.Features.Catalog.Commands.BulkCreatePositions;
+using NetShopAPI.Features.Catalog.Positions.Queries.GetPositionById;
+using NetShopAPI.Features.Catalog.Positions.Queries.GetPositionsByCategory;
+using NetShopAPI.Features.Catalog.Categories.Command;
+using NetShopAPI.Features.Catalog.Categories.Query;
+using NetShopAPI.Infrastructure.Identity;
+using NetShopAPI.Features.Authorized.Services;
+using NetShopAPI.Features.Authorized.Register.Commands;
+using NetShopAPI.Features.Authorized.Login.Query;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,21 +63,26 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+builder.Services.AddScoped<CreateRegisterUserHandler>();
+builder.Services.AddScoped<AuthorizationUserHandler>();
+builder.Services.AddScoped<GetAllCategoriesHandler>();
+builder.Services.AddScoped<CreateCategoryHandler>();
+builder.Services.AddScoped<GetPositionByIdHandler>();
+builder.Services.AddScoped<GetPositionsByCategoryHandler>();
+builder.Services.AddScoped<BulkCreatePositionsHandler>();
 builder.Services.AddScoped<AddToStockHandler>();
-builder.Services.AddScoped<ILoginService, LoginService>();
-builder.Services.AddScoped<IRegisterService, RegisterService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<IUserAccountService, UserAccountService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
-builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<ISupplyService, SupplyService>();
 
-var jwt = builder.Configuration.GetSection("Jwt");
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
-    AddJwtBearer(options =>
+var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtOptions>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -82,9 +90,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = jwt["Issuer"],
-            ValidAudience = jwt["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!))
+            ValidIssuer = jwtOptions!.Issuer,
+            ValidAudience = jwtOptions.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
         };
     });
 
