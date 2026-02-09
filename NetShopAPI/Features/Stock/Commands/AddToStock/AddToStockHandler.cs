@@ -8,10 +8,10 @@ namespace NetShopAPI.Features.Stock.Commands.AddToStock
     public class AddToStockHandler
     {
 
-        private readonly IPositionRepository _positions;
+        private readonly IPositionWriteRepository _positions;
         private readonly IUnitOfWork _uow;
 
-        public AddToStockHandler(IPositionRepository positions, IUnitOfWork uow)
+        public AddToStockHandler(IPositionWriteRepository positions, IUnitOfWork uow)
         {
             _positions = positions;
             _uow = uow;
