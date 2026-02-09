@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NetShopAPI.Common;
 using NetShopAPI.DTOs.OrderDTO.Request;
 using NetShopAPI.Services.OrderServices;
 using System.Security.Claims;
@@ -28,7 +29,7 @@ namespace NetShopAPI.Controllers
         {
             var result = await _orderService.CreateUserOrder(req, ct);
 
-            return Ok(result);
+            return this.ToActionResult(result);
         }
 
 
